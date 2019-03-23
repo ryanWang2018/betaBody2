@@ -143,32 +143,32 @@ class MyCamera extends Component {
   left_helper = (origin, point) => {
     let dx = point.x - origin.x;
     let dy = origin.y - point.y;
-    let degree = 400;
+    let degree;
 
     // at Q1;
     if (dx > 0 && dy >= 0) {
       if (dy === 0) {
         degree = 0;
       } else {
-        degree = math.atan(dy / dx) * (180 / Math.PI);
+        degree = Math.floor(math.atan(dy / dx) * (180 / Math.PI));
       }
       // Q2
     } else if (dx <= 0 && dy > 0) {
       if (dx === 0) {
         degree = 90;
       } else {
-        degree = math.atan(-dx / dy) * (180 / Math.PI) + 90;
+        degree = Math.floor(math.atan(-dx / dy) * (180 / Math.PI)) + 90;
       }
       // Q3
     } else if (dy <= 0 && dx <= 0) {
       if (dy === 0) {
         degree = 180;
       } else {
-        degree = 360 - math.atan(-dx / -dy) * (180 / Math.PI) - 90;
+        degree = 360 - Math.floor(math.atan(-dx / -dy) * (180 / Math.PI)) - 90;
       }
       // Q4
     } else if (dy < 0 && dx > 0) {
-      degree = 360 - math.atan(-dy / dx) * (180 / Math.PI);
+      degree = 360 - Math.floor(math.atan(-dy / dx) * (180 / Math.PI));
     }
     return degree;
   };
@@ -182,7 +182,6 @@ class MyCamera extends Component {
     var imageScaleFactor = 0.5;
     var outputStride = 16;
     var flipHorizontal = false;
-    let res;
 
     const net = await posenet.load();
     const pose = await net.estimateSinglePose(
@@ -213,11 +212,11 @@ class MyCamera extends Component {
     ];
     let result_str = ["isTwoHandUp", "isDap", "isOneHandUp", "isTwoHandDown"];
 
-    if (pose.score <= 0.07) {
+    if (pose.score <= 0.7) {
       console.log("need full body");
-      res = false;
+      return false;
     } else {
-      res = checkArray[curr_img](
+      let res = checkArray[curr_img](
         l_shoulder_elbow,
         l_elbow_hand,
         l_buttocks_knee,
@@ -229,21 +228,21 @@ class MyCamera extends Component {
         r_knee_foot
       );
 
-      console.log(res, result_str[curr_img]);
-    }
-    if (res) {
-      if (this.props.ws.readyState === WebSocket.OPEN) {
-        this.props.ws.send(
-          JSON.stringify({
-            type: "update",
-            from: Cookies.get("username")
-          })
-        );
+      if (res) {
+        if (this.props.ws.readyState === WebSocket.OPEN) {
+          this.props.ws.send(
+            JSON.stringify({
+              type: "update",
+              from: Cookies.get("username")
+            })
+          );
+        }
       }
     }
+
     // let res = (this.state.curr_img_index + 1) % this.imgArray_len;
     // this.setState({ curr_img_index: res });
-    return res;
+    // return res;
   };
 
   componentDidMount() {
@@ -271,7 +270,11 @@ class MyCamera extends Component {
         this.setState({ curr_img_index: curr_img });
       }
       if (this.props.timer.timeleft % 4 === 2) {
-        this.takePhoto();
+        this.takePhoto()
+          .then()
+          .catch(e => {
+            console.log(e);
+          });
       }
     }
   }

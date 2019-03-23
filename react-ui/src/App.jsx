@@ -3,7 +3,7 @@ import LoginPage from "./loginPage";
 import RegisterForm from "./register";
 import GameRooms from "./gameRooms";
 import { BrowserRouter, Route, Switch, Link, Redirect } from "react-router-dom";
-import api from "api.js";
+import api from "./api.js";
 import PrepareRoom from "./prepareRoom";
 
 const checkAuth = () => {
