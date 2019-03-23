@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { Redirect } from "react-router-dom";
 import api from "./api.js";
 
-const URL = route => `wss://mysterious-river-35830.herokuapp.com${route}`;
+const URL = route => `wss://warm-eyrie-91261.herokuapp.com${route}`;
 
 class PrepareRoom extends Component {
   constructor(props) {

@@ -347,24 +347,11 @@ if (!isDev && cluster.isMaster) {
     });
   });
 
-  let WebSocket = require("ws");
-
-  // append /api for our http requests
-  app.use("/api", router);
-  // app.user("")
-
+  const WebSocket = require("ws");
   const http = require("http");
 
   const server = http.createServer(app);
   const wss = new WebSocket.Server({ server });
-  // Broadcast to all.
-  wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(data);
-      }
-    });
-  };
 
   const connectionList = [];
   const players = [];
@@ -376,25 +363,10 @@ if (!isDev && cluster.isMaster) {
     gameState: "",
     winners: []
   };
-  let emojiDir = __dirname + "/static/media/emojis";
 
   // console.log(emojis);
   wss.on("connection", (ws, req) => {
     ws.isAlive = true;
-
-    fs.readdir(emojiDir, (err, data) => {
-      if (err) console.log(err);
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: "emojis",
-            from: "admin",
-            emojiList: data,
-            path: emojiDir
-          })
-        );
-      }
-    });
 
     ws.on("pong", () => {
       ws.isAlive = true;
@@ -403,6 +375,7 @@ if (!isDev && cluster.isMaster) {
     ws.on("open", function open() {
       console.log("connected");
     });
+
     ws.on("message", function incoming(message) {
       let msg = "";
       try {
@@ -429,17 +402,18 @@ if (!isDev && cluster.isMaster) {
 
           let players = activeConnections.map(c => c.user);
           roomState.players = players;
-          // if (numOfActiveConnection === 1) {
-          //     roomState.gameState = "wait";
-          //     if (ws.readyState === WebSocket.OPEN) {
-          //         ws.send(JSON.stringify({
-          //             type: "roomState",
-          //             from: "admin",
-          //             roomState: roomState
-          //         }));
-          //     }
-          // } else
           if (numOfActiveConnection === 1) {
+            roomState.gameState = "wait";
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(
+                JSON.stringify({
+                  type: "roomState",
+                  from: "admin",
+                  roomState: roomState
+                })
+              );
+            }
+          } else if (numOfActiveConnection === 2) {
             roomState.gameState = "gamming";
             roomState.timeleft = 60;
             wss.clients.forEach(client => {
