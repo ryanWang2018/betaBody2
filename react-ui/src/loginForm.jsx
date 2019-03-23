@@ -1,11 +1,8 @@
 import React, { Component } from "react";
 import api from "./api.js";
-import ReactDOM from "react-dom";
 import ErrorMessage from "./errorMessage.jsx";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { Redirect } from "react-router";
 
-const url = username => `/users/${username}`;
 class LoginForm extends Component {
   constructor(props) {
     super(props);
@@ -38,7 +35,7 @@ class LoginForm extends Component {
             error={this.state.error}
           />
           <div className="text-right">
-            <a href="/register/">register</a>
+            <a href="/api/register/">register</a>
           </div>
 
           <form onSubmit={this.login}>
@@ -87,7 +84,7 @@ class LoginForm extends Component {
     } else {
 
       // let path = url(this.state.username);
-      return <Redirect to='/rooms/' />;
+      return <Redirect to='/api/rooms/' />;
     }
   }
 
@@ -109,6 +106,7 @@ class LoginForm extends Component {
       .then(res => {
         if (res.status >= 200 && res.status < 300) {
           this.setState({ isAuth: true });
+          console.log("hello")
           // this.props.history.push("/");
         }
       })

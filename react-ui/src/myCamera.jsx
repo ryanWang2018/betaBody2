@@ -230,12 +230,10 @@ class MyCamera extends Component {
 
       if (res) {
         if (this.props.ws.readyState === WebSocket.OPEN) {
-          this.props.ws.send(
-            JSON.stringify({
-              type: "update",
-              from: Cookies.get("username")
-            })
-          );
+          this.props.ws.send(JSON.stringify({
+            type: 'update',
+            from: Cookies.get("username")
+          }));
         }
       }
     }
@@ -251,7 +249,7 @@ class MyCamera extends Component {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
         .getUserMedia({ video: true })
-        .then(function(stream) {
+        .then(function (stream) {
           //video.src = window.URL.createObjectURL(stream);
           video.srcObject = stream;
           video.play();
@@ -274,7 +272,7 @@ class MyCamera extends Component {
           .then()
           .catch(e => {
             console.log(e);
-          });
+          })
       }
     }
   }

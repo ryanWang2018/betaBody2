@@ -30,13 +30,11 @@ class GameRooms extends Component {
       .catch(err => {
         console.log(err);
       });
-    // // reset the rooms state.
-    // console.log("setting the state to new rooms");
   };
 
   handlerGetRooms() {
     api
-      .get('rooms', null)
+      .get('/rooms/', null)
       .then(res => {
         let rooms = res.data;
         this.setState({ rooms });
@@ -75,9 +73,14 @@ class GameRooms extends Component {
   };
   // called when the object state changes, and get data from server.
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.rooms !== prevState.rooms) {
+    if (prevState.rooms !== this.state.rooms) {
       this.handlerGetRooms();
     }
+
+  }
+
+  componentDidMount() {
+    this.handlerGetRooms();
     this.interval = setInterval(() => this.handlerGetRooms(), 4000);
   }
   // clean up data before something is removed from DOM.
@@ -101,7 +104,7 @@ class GameRooms extends Component {
   render() {
     if (this.state.exit) return <Redirect to='/' />;
 
-    if (this.state.inRoom) return <Redirect to={"/rooms/" + this.state.inRoom} />;
+    if (this.state.inRoom) return <Redirect to={"/api/rooms/" + this.state.inRoom} />;
     return (
       <div>
         <button

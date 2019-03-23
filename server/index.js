@@ -166,13 +166,6 @@ if (!isDev && cluster.isMaster) {
     next();
   });
 
-  // adding longpolling
-  //longpoll.create("/poll");
-  app.get("/", function(req, res) {
-    console.log("hello");
-    res.render("index");
-  });
-
   router.get("/rooms/", isAuthenticated, function(req, res, next) {
     // find the last room in the DB.
     Rooms.find({})
@@ -559,11 +552,11 @@ if (!isDev && cluster.isMaster) {
   app.use("/api", router);
   // app.user("")
 
-  // app.get("*", function(request, response) {
-  //   response.sendFile(
-  //     path.resolve(__dirname, "../react-ui/public/", "index.html")
-  //   );
-  // });
+  app.get("*", function(request, response) {
+    response.sendFile(
+      path.resolve(__dirname, "../react-ui/public/", "index.html")
+    );
+  });
 
   // launch our backend into a port
   app.listen(PORT, function() {
