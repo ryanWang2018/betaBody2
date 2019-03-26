@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import api from "./api.js";
 import ErrorMessage from "./errorMessage.jsx";
 import { Redirect } from "react-router";
+import "./loginPage.css";
 const client_id = "google-sign-in-button";
-
 class LoginForm extends Component {
   constructor(props) {
     super(props);
@@ -16,14 +16,13 @@ class LoginForm extends Component {
       isAuth: false
     };
     this.handleOnChanges = this.handleOnChanges.bind(this);
+    this.onSuccess = this.onSuccess.bind(this);
   }
 
-  // google api sign in code snipped from
-  // http://www.albertgao.xyz/2018/12/15/how-to-add-official-google-sign-in-to-your-react-application/
   componentDidMount() {
     window.gapi.signin2.render(client_id, {
       width: "auto",
-      height: 30,
+      height: 50,
       onsuccess: this.onSuccess
     });
   }
@@ -45,90 +44,71 @@ class LoginForm extends Component {
   render() {
     if (!this.state.isAuth) {
       return (
-        <div
-          className="constainer center"
-          style={{ width: "700px", height: "800px" }}
-        >
-          <ErrorMessage
-            onChange={this.handleOnError}
-            error={this.state.error}
-          />
-          <div
-            id="loginbox"
-            style={{ "margin-top": "50px" }}
-            className="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2"
-          >
-            <div className="panel panel-info">
-              <div className="panel-heading">
-                <div className="panel-title">
-                  <h2>Sign In</h2>
-                </div>
-                <div
-                  style={{
-                    float: "right",
-                    "font-size": "80%",
-                    position: "relative",
-                    top: "-10px"
-                  }}
-                >
-                  <a href="/api/register/">register</a>
-                </div>
-              </div>
-              <div style={{ "padding-top": "30px" }} className="panel-body">
-                <div
-                  style={{ display: "none" }}
-                  id="login-alert"
-                  className="alert alert-danger col-sm-12"
+        <div className="login d-flex align-items-center py-5">
+          <div className="container">
+            <div className="row">
+              <div className="col-md-9 col-lg-8 mx-auto">
+                <h3 className="login-heading mb-4">Welcome back!</h3>
+                <ErrorMessage
+                  onChange={this.handleOnError}
+                  error={this.state.error}
                 />
-                <form
-                  id="loginform"
-                  className="form-horizontal"
-                  role="form"
-                  onSubmit={this.login}
-                >
-                  <span className="input-group-addon">
-                    <i className="glyphicon glyphicon-user" />
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="username"
-                    placeholder="Username"
-                    value={this.state.username}
-                    onChange={this.handleOnChanges}
-                    required
-                  />
+                <div className="text-right mb-4">
+                  <a href="/api/register/">Register</a>
+                </div>
+                <form onSubmit={this.login}>
+                  <div className="form-group">
+                    <label htmlFor="username"> Username </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="username"
+                      placeholder="Username"
+                      value={this.state.username}
+                      onChange={this.handleOnChanges}
+                      required
+                    />
+                  </div>
 
-                  <span className="input-group-addon">
-                    <i className="glyphicon glyphicon-lock" />
-                  </span>
+                  <div className="form-group">
+                    <label htmlFor="password"> Password </label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      name="password"
+                      placeholder="Password"
+                      value={this.state.password}
+                      onChange={this.handleOnChanges}
+                      required
+                    />
+                  </div>
 
-                  <input
-                    id="login-password"
-                    type="password"
-                    className="form-control"
-                    name="password"
-                    placeholder="Password"
-                    value={this.state.password}
-                    onChange={this.handleOnChanges}
-                    required
-                  />
-
-                  <div
-                    style={{
-                      "margin-top": "10px",
-                      "padding-left": "10px",
-                      "padding-right": "10px"
-                    }}
-                    className="form-group"
-                  >
-                    <button type="submit" className="btn btn-primary btn-block">
+                  <label htmlFor="remember">
+                    <input
+                      type="checkbox"
+                      className="checkbox mb-3"
+                      name="remember"
+                      checked={this.state.remember}
+                      onChange={this.handleOnChanges}
+                    />
+                    Remember me
+                  </label>
+                  <div>
+                    <button
+                      type="submit"
+                      className="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2"
+                    >
                       Log In
                     </button>
-                    <h1 />
-                    <div id={client_id}>Google LogIn</div>
+                    <hr className="my-4" />
                   </div>
                 </form>
+                <button
+                  id={client_id}
+                  className="btn btn-lg btn-login btn-google btn-block text-uppercase font-weight-bold mb-2"
+                >
+                  <i className="fab fa-google mr-2" /> Sign up with Google
+                </button>
               </div>
             </div>
           </div>

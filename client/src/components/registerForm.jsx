@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import api from "./api.js";
-import ErrorMessage from "./errorMessage.jsx";
+import ErrorMessage from './errorMessage.jsx';
+import { Redirect } from "react-router-dom";
+import "./loginPage.css";
 class RegisterForm extends Component {
   constructor(props) {
     super(props);
@@ -10,7 +12,8 @@ class RegisterForm extends Component {
       email: "",
       first_name: "",
       last_name: "",
-      error: { content: "", shown: "" }
+      error: { content: "", shown: "" },
+      registered: false
     };
     this.handleOnChanges = this.handleOnChanges.bind(this);
   }
@@ -27,127 +30,101 @@ class RegisterForm extends Component {
   }
 
   render() {
+    if (this.state.registered) return (<Redirect to="/"></Redirect>);
     return (
-      <div>
-        <a href="/" className="btn btn-sm btn-dark" role="button">
-          Back
-        </a>
-        <ErrorMessage onChange={this.handleOnError} error={this.state.error} />
-        <div
-          id="signupbox"
-          style={{ "margin-top": "50px" }}
-          className="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2"
-        >
-          <div className="panel panel-info">
-            <div className="panel-heading">
-              <div className="panel-title">Register</div>
-              <div
-                style={{
-                  float: "right",
-                  "font-size": "85%",
-                  position: "relative",
-                  top: "-10px"
-                }}
-              />
-            </div>
+      <div className="container-fluid">
+        <div className="row no-gutter">
+          <div className="d-none d-md-flex col-md-4 col-lg-6 bg-image"></div>
+          <div className="col-md-8 col-lg-6">
+            <a href="/" className="btn btn-lg btn-primary mb-2 btn-back" role="button">Back</a>
+            <div className="login d-flex align-items-center py-5">
+              <div className="container">
+                <div className="row">
+                  <div className="col-md-9 col-lg-8 mx-auto">
+                    <h3 className="login-heading mb-4">Hello!</h3>
+                    <ErrorMessage
+                      onChange={this.handleOnError}
+                      error={this.state.error}
+                    />
+                    <form onSubmit={this.register}>
+                      <div className="form-group">
+                        <label htmlFor="username"> Username </label>
+                        <input
+                          className="form-control"
+                          type="text"
+                          name="username"
+                          value={this.state.username}
+                          id="username"
+                          placeholder="Username"
+                          onChange={this.handleOnChanges}
+                          required
+                        />
+                      </div>
 
-            <div class="panel-body">
-              <form
-                onSubmit={this.register}
-                id="register_form"
-                className="form-horizontal"
-                role="form"
-              >
-                <div className="form-group">
-                  <label className="col-md-3 control-label">username:</label>
-
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      type="text"
-                      name="username"
-                      value={this.state.username}
-                      id="username"
-                      placeholder="Username"
-                      onChange={this.handleOnChanges}
-                      required
-                    />
+                      <div className="form-group">
+                        <label htmlFor="password"> Password </label>
+                        <input
+                          className="form-control"
+                          type="password"
+                          name="password"
+                          value={this.state.password}
+                          id="password"
+                          placeholder="Password"
+                          onChange={this.handleOnChanges}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="email"> Email Address </label>
+                        <input
+                          className="form-control"
+                          type="email"
+                          name="email"
+                          value={this.state.email}
+                          id="email"
+                          placeholder="E-mail Address"
+                          onChange={this.handleOnChanges}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="first_name"> First Name </label>
+                        <input
+                          className="form-control"
+                          type="text"
+                          name="first_name"
+                          value={this.state.first_name}
+                          id="first_name"
+                          placeholder="First Name"
+                          onChange={this.handleOnChanges}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="last_name"> Last Name </label>
+                        <input
+                          className="form-control"
+                          type="text"
+                          name="last_name"
+                          value={this.state.last_name}
+                          id="last_name"
+                          placeholder="Last Name"
+                          onChange={this.handleOnChanges}
+                        />
+                      </div>
+                      <div>
+                        <button type="submit" className="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2">
+                          Register
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="col-md-3 control-label">password:</label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      type="password"
-                      name="password"
-                      value={this.state.password}
-                      id="password"
-                      placeholder="Password"
-                      onChange={this.handleOnChanges}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="col-md-3 control-label">Email: </label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      type="email"
-                      name="email"
-                      value={this.state.email}
-                      id="email"
-                      placeholder="E-mail Address"
-                      onChange={this.handleOnChanges}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="col-md-3 control-label">First Name:</label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      type="text"
-                      name="first_name"
-                      value={this.state.first_name}
-                      id="first_name"
-                      placeholder="First Name"
-                      onChange={this.handleOnChanges}
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="col-md-3 control-label">Last Name:</label>
-                  <div className="col-md-9">
-                    <input
-                      className="form-control"
-                      type="text"
-                      name="last_name"
-                      value={this.state.last_name}
-                      id="last_name"
-                      placeholder="Last Name"
-                      onChange={this.handleOnChanges}
-                    />
-                  </div>
-                </div>
-              </form>
-              <div className="mx-auto ">
-                <button
-                  style={{ "margin-left": "45px", "margin-right": "40px" }}
-                  type="submit"
-                  id="register_btn"
-                  className="btn btn-info"
-                >
-                  Register
-                </button>
               </div>
             </div>
+
           </div>
         </div>
-      </div>
+      </div >
     );
   }
   register = event => {
@@ -177,8 +154,9 @@ class RegisterForm extends Component {
   };
 
   handleOnSuccess = () => {
-    this.context.router.history.push("/");
-  };
+    // this.context.router.history.push('/');
+    this.setState({ registered: true });
+  }
 
   handleOnError = (err, shown) => {
     let error = { ...this.state.error };

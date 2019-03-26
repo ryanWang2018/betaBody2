@@ -18,6 +18,7 @@ class MyCamera extends Component {
     this.imgArray = [twoHandUp, dap, oneHandUp, twoHandDown];
     // need to modify
     this.imgArray_len = 4;
+
     this.state = {
       curr_img_index: 0
     };
@@ -65,6 +66,95 @@ class MyCamera extends Component {
       l_elbow_hand < 180.0 &&
       r_elbow_hand > 270.0 &&
       r_elbow_hand < 360.0
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  isrightlegbend = (
+    l_shoulder_elbow,
+    l_elbow_hand,
+    l_buttocks_knee,
+    l_knee_foot,
+    r_shoulder_elbow,
+    r_elbow_hand,
+    r_buttocks_knee,
+    r_knee_foot
+  ) => {
+    if (
+      l_shoulder_elbow > 220 &&
+      l_shoulder_elbow < 270 &&
+      l_buttocks_knee > 250 &&
+      l_buttocks_knee < 290 &&
+      r_shoulder_elbow > 270 &&
+      r_shoulder_elbow < 320 &&
+      r_buttocks_knee > 300 &&
+      r_buttocks_knee < 360 &&
+      r_knee_foot > 250 &&
+      r_knee_foot < 280
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  isbothlegbend = (
+    l_shoulder_elbow,
+    l_elbow_hand,
+    l_buttocks_knee,
+    l_knee_foot,
+    r_shoulder_elbow,
+    r_elbow_hand,
+    r_buttocks_knee,
+    r_knee_foot
+  ) => {
+    if (
+      l_shoulder_elbow > 200 &&
+      l_shoulder_elbow < 270 &&
+      l_elbow_hand > 270 &&
+      l_elbow_hand < 310 &&
+      l_knee_foot > 250 &&
+      l_knee_foot < 340 &&
+      r_shoulder_elbow > 270 &&
+      r_shoulder_elbow < 320 &&
+      r_elbow_hand > 180 &&
+      r_elbow_hand < 250 &&
+      r_buttocks_knee > 270 &&
+      r_buttocks_knee < 330 &&
+      r_knee_foot > 260 &&
+      r_knee_foot < 300
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  isLeftLegBend = (
+    l_shoulder_elbow,
+    l_elbow_hand,
+    l_buttocks_knee,
+    l_knee_foot,
+    r_shoulder_elbow,
+    r_elbow_hand,
+    r_buttocks_knee,
+    r_knee_foot
+  ) => {
+    if (
+      l_shoulder_elbow > 200 &&
+      l_shoulder_elbow < 270 &&
+      l_elbow_hand > 200 &&
+      l_elbow_hand < 270 &&
+      l_buttocks_knee > 230 &&
+      l_buttocks_knee < 270 &&
+      l_knee_foot > 270 &&
+      l_knee_foot < 300 &&
+      r_shoulder_elbow > 270 &&
+      r_shoulder_elbow < 320 &&
+      r_elbow_hand > 270 &&
+      r_elbow_hand < 320 &&
+      r_buttocks_knee > 250 &&
+      r_buttocks_knee < 275
     ) {
       return true;
     }
@@ -282,8 +372,8 @@ class MyCamera extends Component {
 
     return (
       <div className="d-flex flex-row">
-        <img id="picture" height="400" width="400" src={load_curr} />
-        <video id="video" className="p-2" width="500" height="500" autoPlay />
+        <img id="picture" height="450" width="450" src={load_curr} />
+        <video id="video" className="p-2" width="400" height="400" autoPlay />
       </div>
     );
   }

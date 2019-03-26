@@ -5,7 +5,7 @@ import { Redirect } from "react-router-dom";
 import api from "./api.js";
 import Scores from "./scores.jsx";
 
-const URL = route => `wss://cscc09project.herokuapp.com/${route}`;
+const URL = route => `wss://warm-eyrie-91261.herokuapp.com${route}`;
 
 class PrepareRoom extends Component {
   constructor(props) {
