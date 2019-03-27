@@ -132,7 +132,7 @@ router.post("/room/", isAuthenticated, function(req, res) {
       .sort({ time: -1 })
       .exec(function(err, rooms) {
         if (err) return res.status(500).end(err);
-        longpoll.publish("/longPull", rooms);
+        //longpoll.publish("/longPull", rooms);
       });
 
     return res.json(insertedRoom[0]);
