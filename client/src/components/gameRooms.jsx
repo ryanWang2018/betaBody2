@@ -20,26 +20,35 @@ class GameRooms extends Component {
 
   getNextPage = () => {
     let curr_rooms = this.state.rooms;
+    let lastroom = curr_rooms[curr_rooms.length - 1];
+
     if (curr_rooms.length == 6) {
       api
-        .get("/rooms/nextPage/", { last_room: curr_rooms[-1] })
+        .post("/rooms/nextPage", { last: lastroom })
         .then(res => {
           console.log(res);
-          this.setState({ rooms: res });
+          this.setState({ rooms: res.data });
         })
         .catch(err => {
           console.log(err);
         });
+    } else {
+      console.log("this is the last page");
     }
   };
 
   getLastPage = () => {
     let curr_rooms = this.state.rooms;
     api
-      .get("/rooms/lastPage/", curr_rooms[0])
+      .post("/rooms/lastPage/", { first: curr_rooms[0] })
       .then(res => {
-        console.log(res);
-        this.setState({ rooms: res });
+        let result = res.data;
+        console.log(result);
+        if (result.length > 0) {
+          this.setState({ rooms: res.data });
+        } else {
+          console.log("this is the ever first page");
+        }
       })
       .catch(err => {
         console.log(err);
@@ -140,11 +149,14 @@ class GameRooms extends Component {
             />
           ))}
         </div>
-        <div id="lastPage" onClick={this.getLastPage}>
-          last
-        </div>
-        <div id="nextPage" onClick={this.getNextPage}>
-          next
+
+        <div className="d-flex flex-row-reverse justify-content-sm-between">
+          <button className="p-2 btn-info" onClick={this.getNextPage}>
+            &raquo;
+          </button>
+          <button className="p-2 btn-info" onClick={this.getLastPage}>
+            &laquo;
+          </button>
         </div>
 
         <button onClick={this.handleAddRoom} className="btn btn-lg btn-danger">

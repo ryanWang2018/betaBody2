@@ -22,14 +22,23 @@ class LoginForm extends Component {
   componentDidMount() {
     window.gapi.signin2.render(client_id, {
       width: "auto",
-      height: 50,
+      height: 40,
       onsuccess: this.onSuccess
     });
   }
 
   onSuccess(googleUser) {
     const profile = googleUser.getBasicProfile();
-    console.log("Name: " + profile.getName());
+    let name = profile.getName();
+
+    api
+      .post("/GoogleSignin/", { name })
+      .then(res => {
+        console.log(res.data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   handleOnChanges(event) {
@@ -103,12 +112,7 @@ class LoginForm extends Component {
                     <hr className="my-4" />
                   </div>
                 </form>
-                <button
-                  id={client_id}
-                  className="btn btn-lg btn-login btn-google btn-block text-uppercase font-weight-bold mb-2"
-                >
-                  <i className="fab fa-google mr-2" /> Sign up with Google
-                </button>
+                <button id={client_id} className="btn btn-lg btn-block" />
               </div>
             </div>
           </div>

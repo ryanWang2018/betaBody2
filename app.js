@@ -216,6 +216,51 @@ router.post("/register", function(req, res, next) {
   });
 });
 
+router.post("/rooms/nextPage", function(req, res, next) {
+  let lst_room = req.body.last;
+  Rooms.find({
+    time: {
+      $lt: lst_room.time
+    }
+  })
+    .sort({ time: -1 })
+    .limit(6)
+    .exec(function(err, rooms) {
+      if (err) return res.status(500).end(err);
+
+      return res.json(rooms);
+    });
+});
+
+router.post("/rooms/lastPage/", function(req, res, next) {
+  let first = req.body.first;
+  Rooms.find({
+    time: {
+      $gt: first.time
+    }
+  })
+    .sort({ time: 1 })
+    .limit(6)
+    .sort({ time: -1 })
+    .exec(function(err, rooms) {
+      if (err) return res.status(500).end(err);
+      return res.json(rooms);
+    });
+});
+
+router.post("/GoogleSignin/", function(req, res, next) {
+  let username = req.body.name;
+  // initialize cookie
+  res.setHeader(
+    "Set-Cookie",
+    cookie.serialize("username", username, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7
+    })
+  );
+  return res.json(username);
+});
+
 router.post("/signin/", function(req, res, next) {
   let username = req.body.username;
   let password = req.body.password;
