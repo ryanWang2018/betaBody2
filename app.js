@@ -107,56 +107,83 @@ app.use(function(req, res, next) {
   next();
 });
 
-router.get("/rooms/nextPage/", isAuthenticated, function(req, res, next) {
-  let last_room = req.body.last_room;
-  Rooms.find({
-    time: {
-      $lt: last_room.time
-    }
-  })
-    .sort({ time: -1 })
-    .limit(6)
-    .exec(function(err, rooms) {
-      if (err) return res.status(500).end(err);
-      return res.json(rooms);
-    });
-});
-
-router.get("/rooms/lastPage/", isAuthenticated, function(req, res, next) {
-  let last_room = req.body.last_room;
-  Rooms.find({
-    time: {
-      $gt: last_room.time
-    }
-  })
-    .sort({ time: 1 })
-    .limit(6)
-    .exec(function(err, rooms) {
-      if (err) return res.status(500).end(err);
-      return res.json(rooms);
-    });
-});
-
-router.get("/rooms/", isAuthenticated, function(req, res, next) {
+router.get("/rooms/", function(req, res, next) {
   // find the last room in the DB.
   Rooms.find({})
     .sort({ time: -1 })
     .limit(6)
     .exec(function(err, rooms) {
       if (err) return res.status(500).end(err);
-
-      return res.json(rooms);
+      Rooms.find({})
+        .count()
+        .exec(function(err, total) {
+          return res.json({ rooms, total });
+        });
     });
 });
 
 // add room
 router.post("/room/", isAuthenticated, function(req, res) {
-  let owner = req.user._id; // id is the owner id
+  let id = req.user._id; // id is the owner id
   let users = [];
-  Rooms.insertMany({ owner: owner, users: users }, function(err, insertedRoom) {
+  Rooms.insertMany({ _id: id, users: users }, function(err, insertedRoom) {
     if (err) return res.status(500).end("Failed creating new room");
+    Rooms.find({})
+      .sort({ time: -1 })
+      .exec(function(err, rooms) {
+        if (err) return res.status(500).end(err);
+        longpoll.publish("/longPull", rooms);
+      });
+
     return res.json(insertedRoom[0]);
   });
+});
+
+router.get("/rooms/:page/", function(req, res, next) {
+  let pageId = req.params.page;
+  Rooms.find({})
+    .sort({ time: -1 })
+    .skip((pageId - 1) * 6)
+    .limit(6)
+    .exec(function(err, rooms) {
+      if (err) return res.status(500).end(err);
+      return res.json(rooms);
+    });
+});
+
+var longpoll = require("express-longpoll")(app);
+longpoll.create("/longPull");
+
+router.post("/rooms/nextPage", function(req, res, next) {
+  let lst_room = req.body.last;
+  Rooms.find({
+    time: {
+      $lt: lst_room.time
+    }
+  })
+    .sort({ time: -1 })
+    .limit(6)
+    .exec(function(err, rooms) {
+      if (err) return res.status(500).end(err);
+
+      return res.json(rooms);
+    });
+});
+
+router.post("/rooms/lastPage/", function(req, res, next) {
+  let first = req.body.first;
+  Rooms.find({
+    time: {
+      $gt: first.time
+    }
+  })
+    .sort({ time: 1 })
+    .limit(6)
+    .sort({ time: -1 })
+    .exec(function(err, rooms) {
+      if (err) return res.status(500).end(err);
+      return res.json(rooms);
+    });
 });
 
 router.delete("/room/:id/", isAuthenticated, function(req, res, next) {
@@ -216,51 +243,6 @@ router.post("/register", function(req, res, next) {
   });
 });
 
-router.post("/rooms/nextPage", function(req, res, next) {
-  let lst_room = req.body.last;
-  Rooms.find({
-    time: {
-      $lt: lst_room.time
-    }
-  })
-    .sort({ time: -1 })
-    .limit(6)
-    .exec(function(err, rooms) {
-      if (err) return res.status(500).end(err);
-
-      return res.json(rooms);
-    });
-});
-
-router.post("/rooms/lastPage/", function(req, res, next) {
-  let first = req.body.first;
-  Rooms.find({
-    time: {
-      $gt: first.time
-    }
-  })
-    .sort({ time: 1 })
-    .limit(6)
-    .sort({ time: -1 })
-    .exec(function(err, rooms) {
-      if (err) return res.status(500).end(err);
-      return res.json(rooms);
-    });
-});
-
-router.post("/GoogleSignin/", function(req, res, next) {
-  let username = req.body.name;
-  // initialize cookie
-  res.setHeader(
-    "Set-Cookie",
-    cookie.serialize("username", username, {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7
-    })
-  );
-  return res.json(username);
-});
-
 router.post("/signin/", function(req, res, next) {
   let username = req.body.username;
   let password = req.body.password;
@@ -283,6 +265,21 @@ router.post("/signin/", function(req, res, next) {
     );
     return res.json(user);
   });
+});
+
+router.post("/GoogleSignin/", function(req, res, next) {
+  let username = req.body.name;
+  let user = { _id: username };
+  req.session.user = user;
+  // initialize cookie
+  res.setHeader(
+    "Set-Cookie",
+    cookie.serialize("username", username, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7
+    })
+  );
+  return res.json(username);
 });
 
 router.get("/signout/", isAuthenticated, function(req, res, next) {
@@ -371,16 +368,56 @@ let connects = [];
 router.ws("/rooms/:roomId", function(ws, req) {
   // create roomConnection/add ws to existing roomConnection
   let roomConnection = connects.find(c => c.roomId === req.params.roomId);
+
   if (!roomConnection) {
     let roomState = { players: [], gameState: "", timeleft: 0, winners: [] };
+    let newPlayer = {
+      playerId: req.session.user._id,
+      point: 0,
+      isReady: false
+    };
+    roomState.players.push(newPlayer);
     roomConnection = {
       roomId: req.params.roomId,
       connections: [ws],
       roomState: roomState
     };
     connects.push(roomConnection);
+    roomConnection.roomState.gameState = "wait";
+    // tell players in room
+    ws.send(
+      JSON.stringify({
+        type: "roomState",
+        from: "admin",
+        roomState: roomConnection.roomState
+      })
+    );
+  } else if (roomConnection && roomConnection.connections.length >= 2) {
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        from: "admin",
+        reason: "room is full"
+      })
+    );
   } else {
+    let newPlayer = {
+      playerId: req.session.user._id,
+      point: 0,
+      isReady: false
+    };
+    roomConnection.roomState.players.push(newPlayer);
     roomConnection.connections.push(ws);
+    roomConnection.roomState.gameState = "wait";
+    roomConnection.connections.forEach(player => {
+      player.send(
+        JSON.stringify({
+          type: "roomState",
+          from: "admin",
+          roomState: roomConnection.roomState
+        })
+      );
+    });
   }
 
   ws.on("message", function(message) {
@@ -393,16 +430,35 @@ router.ws("/rooms/:roomId", function(ws, req) {
     let type = msg ? msg.type : null;
     // let msg = JSON.parse(message.data);
     switch (type) {
+      case "chat":
+        roomConnection.connections.forEach(client => {
+          client.send(
+            JSON.stringify({
+              type: "chat",
+              from: req.session.user._id,
+              chatContent: msg.content
+            })
+          );
+        });
+        break;
+
       case "ready":
         // get the user from session instead of client data
         // add the client to the connection list
-        let playerIds = roomConnection.roomState.players.map(p => p.playerId);
-        if (!playerIds.includes(req.session.user._id)) {
-          let newPlayer = { playerId: req.session.user._id, point: 0 };
-          roomConnection.roomState.players.push(newPlayer);
+        let readyPlayers = roomConnection.roomState.players.filter(
+          p => p.isReady
+        );
+        let readyPlayerIds = readyPlayers.map(p => p.playerId);
+        if (!readyPlayerIds.includes(req.session.user._id)) {
+          let p = roomConnection.roomState.players.find(
+            p => p.playerId === req.session.user._id
+          );
+          p.isReady = true;
+          // roomConnection.roomState.players.push(newPlayer);
         }
-        let numOfPlayers = roomConnection.roomState.players.length;
-        if (numOfPlayers === 1) {
+        let numOfReady = roomConnection.roomState.players.filter(p => p.isReady)
+          .length;
+        if (numOfReady === 1) {
           roomConnection.roomState.gameState = "wait";
           ws.send(
             JSON.stringify({
@@ -411,7 +467,7 @@ router.ws("/rooms/:roomId", function(ws, req) {
               roomState: roomConnection.roomState
             })
           );
-        } else if (numOfPlayers === 2) {
+        } else if (numOfReady === 2) {
           // send start signal to all players in room
           roomConnection.roomState.gameState = "gamming";
           roomConnection.roomState.timeleft = 60;
@@ -510,188 +566,6 @@ router.ws("/rooms/:roomId", function(ws, req) {
     }
   });
 });
-// const server = http.createServer(app);
-// const wss = new WebSocket.Server({
-//     verifyClient: (info, done) => {
-//         sessionParser(info.req, {}, () => {
-//             done(info.req.session.user);
-//         });
-//     },
-//     server
-// });
-
-// const connectionList = [];
-// const players = [];
-// let timer = null;
-// let timeleft = 60;
-// let roomState = { players: [], timeleft: timeleft, gameState: "", winners: [] };
-
-// // console.log(emojis);
-// wss.on("connection", (ws, req) => {
-//     ws.isAlive = true;
-
-//     ws.on("pong", () => {
-//         ws.isAlive = true;
-//     });
-
-//     ws.on("open", function open() {
-//         console.log("connected");
-//     });
-
-//     ws.on('message', function incoming(message) {
-//         let msg = '';
-//         try {
-//             msg = JSON.parse(message);
-//         } catch (e) {
-//             msg = "";
-//         }
-//         let type = msg ? msg.type : null;
-//         // let msg = JSON.parse(message.data);
-//         switch (type) {
-//             case 'ready':
-//                 // get the user from session instead of client data
-//                 // add the client to the connection list
-//                 connectionList.push({ connection: ws, user: { playerId: req.session.user._id, point: 0 } });
-//                 // if two clients are both ready, send the start message to clients
-//                 // and initiate the room state and send to clients
-//                 let activeConnections = connectionList.filter(c => c.connection.readyState === WebSocket.OPEN);
-//                 let numOfActiveConnection = activeConnections.length;
-
-//                 let players = activeConnections.map(c => c.user);
-//                 roomState.timeleft = 60;
-//                 roomState.players = players;
-//                 if (numOfActiveConnection === 1) {
-//                     roomState.gameState = "wait";
-//                     if (ws.readyState === WebSocket.OPEN) {
-//                         ws.send(JSON.stringify({
-//                             type: "roomState",
-//                             from: "admin",
-//                             roomState: roomState
-//                         }));
-//                     }
-//                 } else if (numOfActiveConnection === 2) {
-//                     roomState.gameState = "gamming";
-//                     wss.clients.forEach((client) => {
-//                         if (client.readyState === WebSocket.OPEN) {
-//                             client.send(JSON.stringify({
-//                                 type: "roomState",
-//                                 from: "admin",
-//                                 roomState: roomState
-//                             }));
-//                         }
-//                     });
-//                     let timeUpdater = setInterval(() => {
-//                         roomState.timeleft = roomState.timeleft - 1;
-
-//                         wss.clients.forEach((client) => {
-//                             if (client.readyState === WebSocket.OPEN) {
-//                                 client.send(JSON.stringify({
-//                                     type: "roomState",
-//                                     from: "admin",
-//                                     roomState: roomState
-//                                 }));
-//                             }
-//                         });
-//                     }, 1000);
-//                     setTimeout(() => {
-//                         clearInterval(timeUpdater);
-//                         roomState.gameState = "end";
-//                         let maxPoint = Math.max.apply(Math, roomState.players.map(function(o) { return o.point; }));
-
-//                         let winners = roomState.players.filter((e) => {
-//                             return e.point === maxPoint;
-//                         });
-//                         roomState.winners = winners;
-//                         wss.clients.forEach((client) => {
-//                             if (client.readyState === WebSocket.OPEN) {
-//                                 client.send(JSON.stringify({
-//                                     type: "roomState",
-//                                     from: "admin",
-//                                     roomState: roomState
-//                                 }));
-//                                 client.close();
-//                             }
-//                         })
-//                     }, 60999);
-//                 } else {
-//                     // room full
-//                     console.log("room is full");
-//                     if (ws.readyState === WebSocket.OPEN) {
-//                         ws.send(JSON.stringify({
-//                             type: "error",
-//                             from: "admin",
-//                             reason: "room is full"
-//                         }));
-//                     };
-//                 }
-//                 break;
-//             case 'update':
-//                 console.log("server recieve: update from " + req.session.user._id);
-//                 let targetPlayer = roomState.players.find(p =>
-//                     p.playerId === req.session.user._id);
-//                 targetPlayer.point++;
-
-//                 // check username with session, if pass
-//                 wss.clients.forEach((client) => {
-//                     if (client.readyState === WebSocket.OPEN) {
-//                         client.send(JSON.stringify({
-//                             type: "roomState",
-//                             from: "admin",
-//                             roomState: roomState
-//                         }));
-//                     }
-//                 });
-//                 break;
-//             case 'stop':
-//                 console.log("server recieve: stop from " + req.session.user._id);
-//                 wss.clients.forEach((client) => {
-//                     if (client.readyState === WebSocket.OPEN) {
-//                         client.send(JSON.stringify({
-//                             type: "stop",
-//                             from: "admin"
-//                         }));
-//                     }
-//                 });
-//                 break;
-//             default:
-//                 //error
-//                 ws.send(JSON.stringify("Bad Request: nice try"));
-//         }
-//     });
-//     ws.on("close", () => {
-//         console.log("disconnected");
-
-//         // let i = roomState.players.indexOf(req.user);
-//         // if (i > -1) {
-//         //     roomState.players.splice(i, 1);
-//         // }
-//         let last = wss.clients.size === 1 ? true : false;
-//         if (last && roomState.timeleft > 0) {
-//             wss.clients.forEach(client => {
-//                 if (client.readyState === WebSocket.OPEN) {
-//                     client.send(
-//                         JSON.stringify({
-//                             type: "result",
-//                             result: "win",
-//                             reason: "your opponent leaves, you win!"
-//                         })
-//                     );
-//                 }
-//             });
-//         }
-//     });
-
-//     setInterval(() => {
-//         wss.clients.forEach(ws => {
-//             if (!ws.isAlive) return ws.terminate();
-
-//             ws.isAlive = false;
-//             ws.ping(null, false, true);
-//         });
-//     }, 5000);
-
-//     // ws.send('this is websocket server');
-// });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, err => {

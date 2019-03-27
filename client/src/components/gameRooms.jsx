@@ -14,7 +14,9 @@ class GameRooms extends Component {
       rooms: [],
       time: Date.now(),
       // exit: false,
-      inRoom: ""
+      inRoom: "",
+      totalRooms: [1],
+      curr_page: 1
     };
   }
 
@@ -28,6 +30,7 @@ class GameRooms extends Component {
         .then(res => {
           console.log(res);
           this.setState({ rooms: res.data });
+          this.setState({ curr_page: this.state.curr_page + 1 });
         })
         .catch(err => {
           console.log(err);
@@ -46,6 +49,7 @@ class GameRooms extends Component {
         console.log(result);
         if (result.length > 0) {
           this.setState({ rooms: res.data });
+          this.setState({ curr_page: this.state.curr_page - 1 });
         } else {
           console.log("this is the ever first page");
         }
@@ -73,8 +77,16 @@ class GameRooms extends Component {
     api
       .get("/rooms/", null)
       .then(res => {
-        let rooms = res.data;
+        //console.log(res);
+        let rooms = res.data.rooms;
         this.setState({ rooms });
+        let total = res.data.total;
+        total = (total % 6) + 1;
+        let lst = [];
+        for (let i = 1; i <= total; i++) {
+          lst.push(i);
+        }
+        this.setState({ totalRooms: lst });
       })
       .catch(err => {
         console.log(err);
@@ -108,8 +120,23 @@ class GameRooms extends Component {
       });
   };
 
+  longpull = () => {
+    api
+      .get("/longPull")
+      .then(res => {
+        console.log(res.data);
+        let rooms = res.data;
+        let lst = rooms.slice((this.state.curr_page - 1) * 6, 5);
+        this.setState({ rooms: lst });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   componentDidMount() {
     this.handlerGetRooms();
+    this.longpull();
   }
   // clean up data before something is removed from DOM.
 
@@ -126,9 +153,30 @@ class GameRooms extends Component {
       });
   };
 
+  selectPage = room => {
+    this.setState({ curr_page: room });
+    api
+      .get("/rooms/" + room + "/")
+      .then(res => {
+        this.setState({ rooms: res.data });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  setPage = room => {
+    if (room === this.state.curr_page) {
+      return "btn btn-primary";
+    } else {
+      return "btn btn-secondary";
+    }
+  };
+
   render() {
     if (this.state.inRoom)
       return <Redirect to={"/api/rooms/" + this.state.inRoom} />;
+
     return (
       <div>
         <a
@@ -150,12 +198,22 @@ class GameRooms extends Component {
           ))}
         </div>
 
-        <div className="d-flex flex-row-reverse justify-content-sm-between">
-          <button className="p-2 btn-info" onClick={this.getNextPage}>
-            &raquo;
-          </button>
+        <div className="d-flex flex-row justify-content-sm-between">
           <button className="p-2 btn-info" onClick={this.getLastPage}>
             &laquo;
+          </button>
+
+          {this.state.totalRooms.map(room => (
+            <button
+              className={this.setPage(room)}
+              key={room}
+              onClick={() => this.selectPage(room)}
+            >
+              {room}
+            </button>
+          ))}
+          <button className="p-2 btn-info" onClick={this.getNextPage}>
+            &raquo;
           </button>
         </div>
 

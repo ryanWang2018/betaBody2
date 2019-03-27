@@ -4,18 +4,23 @@ import Cookies from "js-cookie";
 import { Redirect } from "react-router-dom";
 import api from "./api.js";
 import Scores from "./scores.jsx";
+import WaitingRoom from "./waitingRoom.jsx";
+import "./gameRoomsPage.css";
 
 const URL = route => `wss://warm-eyrie-91261.herokuapp.com${route}`;
+// const URL = route => `ws://localhost:3000${route}`;
 
 class PrepareRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      playerList: [],
+      playerList: [], //{ playerId: req.session.user._id, point: 0, isReady: false }
       timer: { timeleft: 0 },
       emojiList: [],
       result: "",
-      back: false
+      start: "",
+      back: false,
+      chatContent: []
     };
   }
 
@@ -25,41 +30,52 @@ class PrepareRoom extends Component {
 
     if (start) {
       return (
-        <div>
-          <GameBoard
-            ws={this.ws}
-            result={this.state.result}
-            scoreList={this.state.playerList}
-            timer={this.state.timer}
-            emojiList={this.state.emojiList}
-          />
-          ;
+        <div className="container sub-body">
+          <div className="row">
+            <div className="col mx-auto">
+              <div className="card card-signin my-5">
+                <div className="card-body">
+                  <div>
+                    <GameBoard
+                      ws={this.ws}
+                      result={this.state.result}
+                      scoreList={this.state.playerList}
+                      timer={this.state.timer}
+                      emojiList={this.state.emojiList}
+                    />
+                    ;
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       );
     } else {
       return (
-        <div>
-          <div>
-            <button
-              onClick={this.leaveRoom}
-              className="btn btn-danger btn-sm m-2"
-            >
-              back
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={this.sendReady}
-              className="btn btn-danger btn-sm m-2"
-            >
-              ready
-            </button>
-          </div>
-          <div>
-            <Scores
-              scoreList={this.state.playerList}
-              timer={this.state.timer}
-            />
+        <div className="container sub-body">
+          <div className="row">
+            <div className="col mx-auto">
+              <div className="card card-signin my-5">
+                <div className="card-body">
+                  <div>
+                    <button
+                      onClick={this.leaveRoom}
+                      className="btn btn-danger btn-sm m-2"
+                    >
+                      back
+                    </button>
+                  </div>
+                  <WaitingRoom
+                    ws={this.ws}
+                    playerList={this.state.playerList}
+                    url={URL(this.props.location.pathname)}
+                    roomId={this.props.match.params.roomId}
+                    chatContent={this.state.chatContent}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -73,7 +89,7 @@ class PrepareRoom extends Component {
       .then(res => {
         console.log("leave room ", roomId);
         this.setState({ back: true });
-        this.ws.close();
+        // this.ws.close();
         // console.log("leave room ", res.data);
         // this.setState({ inRoom: res.data._id });
       })
@@ -100,6 +116,9 @@ class PrepareRoom extends Component {
         case "roomState":
           this.handleOnRoomState(message);
           break;
+        case "chat":
+          this.handleOnChat(message);
+          break;
         case "emojis":
           this.handleOnEmojis(message);
           break;
@@ -113,14 +132,15 @@ class PrepareRoom extends Component {
 
   ws = new WebSocket(URL(this.props.location.pathname));
 
-  sendReady = () => {
-    this.ws.send(
-      JSON.stringify({
-        type: "ready",
-        from: Cookies.get("username"),
-        roomId: this.props.match.params.roomId
-      })
-    );
+  handleOnChat = message => {
+    let newChatContent = {
+      chatContent: message.chatContent,
+      from: message.from
+    };
+
+    this.setState(prevState => ({
+      chatContent: [...prevState.chatContent, newChatContent]
+    }));
   };
   handleOnEmojis = message => {
     let emojiList = message.emojiList;
@@ -179,7 +199,7 @@ class PrepareRoom extends Component {
   // }
 
   handleOnError = err => {
-    console.log(err);
+    this.setState({ back: true });
   };
 
   handleOnStart = (timeleft, players) => {
