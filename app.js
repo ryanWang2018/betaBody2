@@ -124,18 +124,17 @@ router.get("/rooms/", function(req, res, next) {
 
 // add room
 router.post("/room/", isAuthenticated, function(req, res) {
-  let id = req.user._id; // id is the owner id
+  let owner = req.user._id; // id is the owner id
   let users = [];
-  Rooms.insertMany({ _id: id, users: users }, function(err, insertedRoom) {
+  Rooms.insertMany({ owner: owner, users: users }, function(err, insertedRoom) {
     if (err) return res.status(500).end("Failed creating new room");
+    return res.json(insertedRoom[0]);
     // Rooms.find({})
     //   .sort({ time: -1 })
     //   .exec(function(err, rooms) {
     //     if (err) return res.status(500).end(err);
     //     //longpoll.publish("/longPull", rooms);
     //   });
-
-    return res.json(insertedRoom[0]);
   });
 });
 
