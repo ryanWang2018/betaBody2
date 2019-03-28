@@ -32,20 +32,18 @@ class PrepareRoom extends Component {
         <div className="container sub-body">
           <div className="row">
             <div className="col mx-auto">
+              <Scores
+                scoreList={this.state.playerList}
+                timer={this.state.timer}
+              />
+              <div
+                style={{
+                  height: "200px",
+                  width: "200px",
+                  backgroundColor: "black"
+                }}
+              />
               <div className="card card-signin my-5">
-                <div className="row">
-                  <Scores
-                    scoreList={this.state.playerList}
-                    timer={this.state.timer}
-                  />
-                  <div
-                    style={{
-                      height: "200px",
-                      width: "200px",
-                      backgroundColor: "black"
-                    }}
-                  />
-                </div>
                 <div className="card-body">
                   <div>
                     <GameBoard
