@@ -73,6 +73,8 @@ let checkId = function(req, res, next) {
   next();
 };
 
+let longpoll = require("express-longpoll")(app);
+
 // https://www.npmjs.com/package/axios  cors header need to fix
 app.use(function(req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
@@ -107,6 +109,8 @@ app.use(function(req, res, next) {
   next();
 });
 
+longpoll.create("/longPull");
+
 router.get("/rooms/", function(req, res, next) {
   // find the last room in the DB.
   Rooms.find({})
@@ -123,18 +127,19 @@ router.get("/rooms/", function(req, res, next) {
 });
 
 // add room
-router.post("/room/", isAuthenticated, function(req, res) {
+router.post("/room/", function(req, res) {
   let owner = req.user._id; // id is the owner id
   let users = [];
   Rooms.insertMany({ owner: owner, users: users }, function(err, insertedRoom) {
     if (err) return res.status(500).end("Failed creating new room");
-    return res.json(insertedRoom[0]);
     // Rooms.find({})
     //   .sort({ time: -1 })
     //   .exec(function(err, rooms) {
     //     if (err) return res.status(500).end(err);
-    //     //longpoll.publish("/longPull", rooms);
+    //     longpoll.publish("/longPull", rooms);
+    //
     //   });
+    return res.json(insertedRoom[0]);
   });
 });
 
@@ -149,9 +154,6 @@ router.get("/rooms/:page/", function(req, res, next) {
       return res.json(rooms);
     });
 });
-
-var longpoll = require("express-longpoll")(app);
-longpoll.create("/longPull");
 
 router.post("/rooms/nextPage", function(req, res, next) {
   let lst_room = req.body.last;

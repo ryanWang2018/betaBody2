@@ -169,6 +169,7 @@ class PrepareRoom extends Component {
 
   handleOnResult = winners => {
     console.log("handle on result winners: " + winners);
+
     let result = winners[0].playerId;
     console.log("result : " + result);
     this.setState({ result });

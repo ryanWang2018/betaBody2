@@ -65,8 +65,8 @@ class GameRooms extends Component {
       .post("/room/", null)
       .then(res => {
         //enter created room
-        console.log(res);
-        this.enterRoom(res.data._id);
+        console.log(res.data);
+        //this.enterRoom(res.data._id);
       })
       .catch(err => {
         console.log(err);
