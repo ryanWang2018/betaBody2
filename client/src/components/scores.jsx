@@ -21,7 +21,7 @@ class Scores extends Component {
           </div>
           <div className="scoreMiddle bodyItem">
             <h4 className="socreText">TimeLeft</h4>
-            <h2 className="textElement">{timer}</h2>
+            <h2 className="textElement">{timer.timeleft}</h2>
           </div>
           <div className="scoreRight bodyItem">
             <h4 className="socreText">Score</h4>

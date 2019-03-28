@@ -13,26 +13,6 @@ class EmojiBar extends Component {
       </div>
     );
   }
-
-  componentDidMount() {
-    this.setState({
-      currentEmoji: this.props.emojiList[
-        Math.floor(Math.random() * this.props.emojiList.length)
-      ]
-    });
-  }
-  componentDidUpdate(prevProps) {
-    if (
-      this.props.timer.timeleft !== prevProps.timer.timeleft &&
-      this.props.timer.timeleft % 4 === 0
-    ) {
-      this.setState({
-        currentEmoji: this.props.emojiList[
-          Math.floor(Math.random() * this.props.emojiList.length)
-        ]
-      });
-    }
-  }
 }
 
 export default EmojiBar;

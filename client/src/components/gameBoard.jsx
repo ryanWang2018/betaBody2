@@ -5,7 +5,6 @@ import EmojiBar from "./emojiBar.jsx";
 import Cookies from "js-cookie";
 
 class GameBoard extends Component {
-
   render() {
     // const result = this.props.result;
     const scoreList = this.props.scoreList;
@@ -14,16 +13,24 @@ class GameBoard extends Component {
     const ws = this.props.ws;
     const result = this.props.result;
     return (
-
       <div className="container">
         <div className="row">
-          <Scores scoreList={scoreList} timer={timer}></Scores>
+          <Scores scoreList={scoreList} timer={timer} />
         </div>
-        <Result result={result} className="row"></Result>
-        <div >
-          <EmojiBar ws={ws} emojiList={emojiList} timer={timer} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}></EmojiBar>
+        <Result result={result} className="row" />
+        <div>
+          <EmojiBar
+            ws={ws}
+            emojiList={emojiList}
+            timer={timer}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh"
+            }}
+          />
         </div>
-
       </div>
     );
   }

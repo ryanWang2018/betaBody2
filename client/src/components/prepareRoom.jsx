@@ -3,7 +3,6 @@ import GameBoard from "./gameBoard.jsx";
 import Cookies from "js-cookie";
 import { Redirect } from "react-router-dom";
 import api from "./api.js";
-import Scores from "./scores.jsx";
 import WaitingRoom from "./waitingRoom.jsx";
 import "./gameRoomsPage.css";
 
@@ -43,7 +42,6 @@ class PrepareRoom extends Component {
                       timer={this.state.timer}
                       emojiList={this.state.emojiList}
                     />
-                    ;
                   </div>
                 </div>
               </div>
