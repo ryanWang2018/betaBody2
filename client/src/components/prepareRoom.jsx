@@ -6,9 +6,6 @@ import api from "./api.js";
 import Scores from "./scores.jsx";
 import WaitingRoom from "./waitingRoom.jsx";
 import "./gameRoomsPage.css";
-import Scores from "./scores.jsx";
-import Result from "./result.jsx";
-import EmojiBar from "./emojiBar.jsx";
 
 const URL = route => `wss://warm-eyrie-91261.herokuapp.com${route}`;
 // const URL = route => `ws://localhost:3000${route}`;
@@ -38,23 +35,15 @@ class PrepareRoom extends Component {
             <div className="col mx-auto">
               <div className="card card-signin my-5">
                 <div className="card-body">
-                  <div className="row">
-                    <Scores
+                  <div>
+                    <GameBoard
+                      ws={this.ws}
+                      result={this.state.result}
                       scoreList={this.state.playerList}
                       timer={this.state.timer}
+                      emojiList={this.state.emojiList}
                     />
-                  </div>
-                  <div>
-                    <EmojiBar
-                      ws={this.ws}
-                      timer={this.state.timer}
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100vh"
-                      }}
-                    />
+                    ;
                   </div>
                 </div>
               </div>

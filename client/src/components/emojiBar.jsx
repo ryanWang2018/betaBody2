@@ -4,8 +4,6 @@ import MyCamera from "./myCamera.jsx";
 import { Redirect } from "react-router-dom";
 
 class EmojiBar extends Component {
-
-
   render() {
     let timer = this.props.timer;
     let ws = this.props.ws;
