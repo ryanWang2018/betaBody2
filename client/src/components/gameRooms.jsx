@@ -81,7 +81,7 @@ class GameRooms extends Component {
         let rooms = res.data.rooms;
         this.setState({ rooms });
         let total = res.data.total;
-        total = (total % 6) + 1;
+        total = Math.floor(total / 6) + 1;
         let lst = [];
         for (let i = 1; i <= total; i++) {
           lst.push(i);
