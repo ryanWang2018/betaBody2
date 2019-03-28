@@ -114,7 +114,17 @@ class GameRooms extends Component {
       .then(res => {
         console.log(res.data);
         let rooms = res.data;
-        let lst = rooms.slice((this.state.curr_page - 1) * 6, 5);
+        let total = rooms.length;
+        total = Math.floor(total / 6) + 1;
+        let lst = [];
+        for (let i = 1; i <= total; i++) {
+          lst.push(i);
+        }
+        this.setState({ totalRooms: lst });
+        let lst = rooms.slice(
+          (this.state.curr_page - 1) * 6,
+          (this.state.curr_page - 1) * 6 + 6
+        );
         this.setState({ rooms: lst });
       })
       .catch(err => {
