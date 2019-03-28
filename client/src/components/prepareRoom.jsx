@@ -5,7 +5,7 @@ import { Redirect } from "react-router-dom";
 import api from "./api.js";
 import WaitingRoom from "./waitingRoom.jsx";
 import "./gameRoomsPage.css";
-
+import Scores from "./scores.jsx";
 const URL = route => `wss://warm-eyrie-91261.herokuapp.com${route}`;
 // const URL = route => `ws://localhost:3000${route}`;
 
