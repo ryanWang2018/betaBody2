@@ -136,7 +136,7 @@ class GameRooms extends Component {
 
   componentDidMount() {
     this.handlerGetRooms();
-    this.longpull();
+    //this.longpull();
   }
   // clean up data before something is removed from DOM.
 
