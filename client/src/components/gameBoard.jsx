@@ -14,9 +14,6 @@ class GameBoard extends Component {
     const result = this.props.result;
     return (
       <div className="container">
-        <div className="row">
-          <Scores scoreList={scoreList} timer={timer} />
-        </div>
         <Result result={result} className="row" />
         <div>
           <EmojiBar
