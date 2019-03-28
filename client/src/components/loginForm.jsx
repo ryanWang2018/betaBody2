@@ -30,6 +30,7 @@ class LoginForm extends Component {
   onSuccess(googleUser) {
     const profile = googleUser.getBasicProfile();
     let name = profile.getName();
+    this.setState({ isAuth: true });
 
     api
       .post("/GoogleSignin/", { name })

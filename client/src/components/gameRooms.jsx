@@ -93,18 +93,6 @@ class GameRooms extends Component {
       });
   }
 
-  // handlerDelete = room => {
-  //   api
-  //     .delete("/room/" + room._id + "/")
-  //     .then(res => {
-  //       let rooms = res.data;
-  //       // this.setState({ rooms });
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //     });
-  // };
-
   handlerClick = roomId => {
     console.log("room is clicked", roomId);
   };
