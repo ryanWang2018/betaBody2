@@ -73,7 +73,7 @@ let checkId = function(req, res, next) {
   next();
 };
 
-let longpoll = require("express-longpoll")(router);
+let longpoll = require("express-longpoll")(app);
 
 // https://www.npmjs.com/package/axios  cors header need to fix
 app.use(function(req, res, next) {
@@ -138,7 +138,6 @@ router.post("/room/", function(req, res) {
         if (err) return res.status(500).end(err);
         console.log(rooms);
         longpoll.publish("/longPull", rooms);
-        console.log("at create room");
         return res.json(insertedRoom[0]);
       });
   });
