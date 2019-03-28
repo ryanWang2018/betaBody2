@@ -121,11 +121,11 @@ class GameRooms extends Component {
           lst.push(i);
         }
         this.setState({ totalRooms: lst });
-        let lst = rooms.slice(
+        let new_rooms = rooms.slice(
           (this.state.curr_page - 1) * 6,
           (this.state.curr_page - 1) * 6 + 6
         );
-        this.setState({ rooms: lst });
+        this.setState({ rooms: new_rooms });
       })
       .catch(err => {
         console.log(err);
