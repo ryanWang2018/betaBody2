@@ -73,7 +73,7 @@ let checkId = function(req, res, next) {
   next();
 };
 
-let longpoll = require("express-longpoll")(app);
+let longpoll = require("express-longpoll")(router);
 
 // https://www.npmjs.com/package/axios  cors header need to fix
 app.use(function(req, res, next) {
