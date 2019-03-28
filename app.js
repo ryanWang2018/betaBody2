@@ -328,7 +328,7 @@ router.post("/room/:id/enter/", isAuthenticated, function(req, res, next) {
 //leave room
 router.post("/room/:id/leave/", isAuthenticated, function(req, res, next) {
   let id = req.params.id;
-  console.log("leave room ", id);
+
   Rooms.findOne({ _id: id }, function(err, room) {
     if (err) return res.status(500).end(err);
     if (!room) return res.status(401).end("We do not find the match room.");

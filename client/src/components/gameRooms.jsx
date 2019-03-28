@@ -134,7 +134,6 @@ class GameRooms extends Component {
 
   componentDidMount() {
     this.handlerGetRooms();
-    this.longpull();
   }
   // clean up data before something is removed from DOM.
 
@@ -174,7 +173,7 @@ class GameRooms extends Component {
   render() {
     if (this.state.inRoom)
       return <Redirect to={"/api/rooms/" + this.state.inRoom} />;
-
+    this.longpull();
     return (
       <div>
         <a
