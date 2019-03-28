@@ -35,15 +35,23 @@ class PrepareRoom extends Component {
             <div className="col mx-auto">
               <div className="card card-signin my-5">
                 <div className="card-body">
-                  <div>
-                    <GameBoard
-                      ws={this.ws}
-                      result={this.state.result}
+                  <div className="row">
+                    <Scores
                       scoreList={this.state.playerList}
                       timer={this.state.timer}
-                      emojiList={this.state.emojiList}
                     />
-                    ;
+                  </div>
+                  <div>
+                    <EmojiBar
+                      ws={this.ws}
+                      timer={this.state.timer}
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100vh"
+                      }}
+                    />
                   </div>
                 </div>
               </div>
