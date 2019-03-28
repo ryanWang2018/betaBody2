@@ -138,9 +138,9 @@ router.post("/room/", function(req, res) {
         if (err) return res.status(500).end(err);
         console.log(rooms);
         longpoll.publish("/longPull", rooms);
+        console.log("at create room");
+        return res.json(insertedRoom[0]);
       });
-    console.log("at create room");
-    return res.json(insertedRoom[0]);
   });
 });
 
