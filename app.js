@@ -358,6 +358,14 @@ router.post("/room/:id/leave/", isAuthenticated, function(req, res, next) {
 app.use("/api", router);
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
+
+app.get(
+  "/.well-known/acme-challenge/.well-known/acme-challenge/wWF7T95ZISM5TeWHbvjhn38RAy81avcj9U-V0zvmztU",
+  function(req, res) {
+    return res.send("xxxxxxxxxxxx-yyyy.zzzzzzzzzzzzzzzzzzz");
+  }
+);
+
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname + "/client/build/index.html"));
 });
