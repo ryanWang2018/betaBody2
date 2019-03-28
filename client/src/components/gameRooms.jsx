@@ -66,7 +66,7 @@ class GameRooms extends Component {
       .then(res => {
         //enter created room
         console.log(res.data);
-        //this.enterRoom(res.data._id);
+        this.enterRoom(res.data._id);
       })
       .catch(err => {
         console.log(err);
@@ -124,7 +124,7 @@ class GameRooms extends Component {
 
   componentDidMount() {
     this.handlerGetRooms();
-    //this.longpull();
+    this.longpull();
   }
   // clean up data before something is removed from DOM.
 
