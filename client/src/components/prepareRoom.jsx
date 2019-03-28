@@ -6,6 +6,9 @@ import api from "./api.js";
 import Scores from "./scores.jsx";
 import WaitingRoom from "./waitingRoom.jsx";
 import "./gameRoomsPage.css";
+import Scores from "./scores.jsx";
+import Result from "./result.jsx";
+import EmojiBar from "./emojiBar.jsx";
 
 const URL = route => `wss://warm-eyrie-91261.herokuapp.com${route}`;
 // const URL = route => `ws://localhost:3000${route}`;
