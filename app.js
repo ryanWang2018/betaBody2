@@ -359,16 +359,18 @@ app.use("/api", router);
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 
-router.get(
-  "/.well-known/acme-challenge/.well-known/acme-challenge/wWF7T95ZISM5TeWHbvjhn38RAy81avcj9U-V0zvmztU",
+app.get(
+  "/.well-known/acme-challenge/adJE79ldTLmlGcznI70kSfK6esp5mUTVT4kIjsWYlyw",
   function(req, res) {
-    return res.send("xxxxxxxxxxxx-yyyy.zzzzzzzzzzzzzzzzzzz");
+    return res.send(
+      "adJE79ldTLmlGcznI70kSfK6esp5mUTVT4kIjsWYlyw.SgT4GQXWCROyQRSuEGWG81qmCv7Hihr8G84Xana32rQ"
+    );
   }
 );
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname + "/client/build/index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname + "/client/build/index.html"));
+// });
 
 const expressWs = require("express-ws")(app);
 // const http = require("http");
